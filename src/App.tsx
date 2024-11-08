@@ -1,23 +1,18 @@
-import { Button } from "./components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card"
 import "./index.css"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./components/ui/table"
 import { Switch } from "./components/ui/switch"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./components/ui/chart"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
 
-function App() {
-  const test = async () => {
-    let [tab] = await chrome.tabs.query({ active: true })
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id! },
-      func: () => {
-        alert("Hey")
-      }
-    })
-  }
+type Site = {
+  website: string;
+  time: number,
+  blocked: boolean;
+};
 
+function App() {
   const chartData = [
     { day: "Mon", hours: 5 },
     { day: "Tue", hours: 4 },
@@ -28,29 +23,74 @@ function App() {
     { day: "Sun", hours: 6 },
   ]
 
-  const tableData = [
-    { website: "youtube.com", time: "2h 15m", blocked: false },
-    { website: "facebook.com", time: "1h 30m", blocked: true },
-    { website: "twitter.com", time: "45m", blocked: false },
-    { website: "instagram.com", time: "1h 10m", blocked: false },
-    { website: "linkedin.com", time: "30m", blocked: false },
-  ]
+  const [websites, setWebsites] = useState<Site[]>([])
 
-  const [websites, setWebsites] = useState(tableData)
+  const formatTime = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m ${secs}s`;
+  };
+
+  useEffect(() => {
+    chrome.storage.sync.get("sites", (data) => {
+      if (data.sites) {
+        setWebsites(data.sites);
+      }
+    });
+  }, []);
 
   const toggleBlocked = (index: number) => {
-    setWebsites(prevWebsites =>
-      prevWebsites.map((site, i) =>
-        i === index ? { ...site, blocked: !site.blocked } : site
-      )
-    )
+    const updatedSites = [...websites];
+    updatedSites[index].blocked = !updatedSites[index].blocked;
+    setWebsites(updatedSites)
+
+    //setWebsites(prevWebsites =>
+    //  prevWebsites.map((site, i) =>
+    //    i === index ? { ...site, blocked: !site.blocked } : site
+    //  )
+    //)
+
+    chrome.storage.sync.set({ sites: updatedSites }, () => {
+      updateBlockingRules(updatedSites);
+    });
+    //chrome.storage.sync.get("sites", (data) => { console.log(data?.sites) })
   }
 
-  console.log(websites)
+  const updateBlockingRules = (sites: Site[]) => {
+    const blockedRules = sites
+      .filter(site => site.blocked)
+      .map((site, id) => ({
+        id: id + 1,
+        priority: 1,
+        action: { type: chrome.declarativeNetRequest.RuleActionType.BLOCK },
+        condition: {
+          urlFilter: site.website,
+          resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME]
+        }
+      }));
+
+    chrome.declarativeNetRequest.getDynamicRules((existingRules) => {
+      const existingRuleIds = existingRules.map(rule => rule.id);
+
+      chrome.declarativeNetRequest.updateDynamicRules(
+        { removeRuleIds: existingRuleIds, addRules: [] },
+        () => {
+          chrome.declarativeNetRequest.updateDynamicRules(
+            { addRules: blockedRules },
+            () => console.log("Blocking rules updated")
+          );
+        }
+      );
+    });
+
+  };
 
   return (
     <div className="container mx-auto p-2 space-y-3 min-w-96">
-      <Button className="hidden" onClick={() => test()}>Test this extension</Button>
       <Card className="shadow-none border-none">
         <CardHeader>
           <CardTitle>Screen Time Usage</CardTitle>
@@ -91,7 +131,7 @@ function App() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {websites.map((site, index) => (
+              {websites.sort((a, b) => a.time > b.time ? -1 : 1).map((site, index) => (
                 <TableRow key={site.website}>
                   <TableCell className="font-medium">
                     <div className="flex items-center space-x-2">
@@ -100,12 +140,12 @@ function App() {
                         alt={`${site.website} favicon`}
                         width={16}
                         height={16}
-                        className="rounded-sm hidden"
+                        className="rounded-sm"
                       />
-                      <span>{site.website}</span>
+                      <span className="truncate w-[17ch]">{site.website}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{site.time}</TableCell>
+                  <TableCell>{formatTime(site.time)}</TableCell>
                   <TableCell>
                     <Switch
                       checked={site.blocked}

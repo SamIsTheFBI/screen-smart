@@ -15,7 +15,21 @@
     "http://*/*",
     "https://*/*"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "permissions": [
-    "scripting"
-  ]
+    "scripting",
+    "storage",
+    "declarativeNetRequest"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "blocklist",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
 }
