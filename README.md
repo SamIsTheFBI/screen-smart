@@ -1,50 +1,40 @@
-# React + TypeScript + Vite
+## 💻 ScreenSmart - A smarter way to track your screentime
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Features/To-do:
 
-Currently, two official plugins are available:
+- [X] Track screentime for new websites
+- [X] Toggle sites to be blocked & unblocked
+- [X] Show top 5 websites user spent most time on
+- [ ] Add option to set screentime limit
+- [ ] Add reward points for completing set goals
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### How to use:
 
-## Expanding the ESLint configuration
+- Clone and build the extension.
+  ```bash
+  git clone https://github.com/samisthefbi/screen-smart
+  cd screen-smart
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+  # use your favorite Nodejs package manager
+  pnpm install
+  pnpm run build
+  ```
 
-- Configure the top-level `parserOptions` property like this:
+- Install on your browser.
+  
+  - Type `chrome://extensions` in your address bar and hit <kbd>Enter</kbd>.
+  - Turn on Developer Mode (should be on the top left, for Chrome atleast).
+  - Two options appear; Click on `Load unpacked`.
+  - Locate the clone repository and select the `dist` directory.
+  
+  |![image](https://github.com/user-attachments/assets/1dfaedd1-dead-46ef-99ad-d0682d6af6ee)|![image](https://github.com/user-attachments/assets/c17b759d-d663-4481-8dbf-9f67be89da2a)|
+  |-|-|
+  |Turn on Developer Mode and click `Load Unpacked`|Locate the cloned repo and select the `dist` folder|
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- That's it!
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+ 
+
+
