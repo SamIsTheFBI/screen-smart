@@ -1,7 +1,7 @@
-import './App.css'
+import { Button } from "./components/ui/button"
+import "./index.css"
 
 function App() {
-
   const test = async () => {
     let [tab] = await chrome.tabs.query({ active: true })
     chrome.scripting.executeScript({
@@ -13,9 +13,9 @@ function App() {
   }
 
   return (
-    <>
-      <button onClick={() => test()}>Test this extension</button>
-    </>
+    <div className="mx-auto flex justify-center p-6">
+      <Button onClick={() => test()}>Test this extension</Button>
+    </div>
   )
 }
 
