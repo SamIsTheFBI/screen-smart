@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Switch } from "./components/ui/switch"
 import { useEffect, useState } from "react"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./components/ui/chart"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
+import { BarChart, Bar, XAxis, CartesianGrid, ResponsiveContainer } from "recharts"
 
 type Site = {
   website: string;
@@ -13,6 +13,7 @@ type Site = {
 };
 
 function App() {
+  /*
   const chartData = [
     { day: "Mon", hours: 5 },
     { day: "Tue", hours: 4 },
@@ -22,6 +23,7 @@ function App() {
     { day: "Sat", hours: 8 },
     { day: "Sun", hours: 6 },
   ]
+  */
 
   const [websites, setWebsites] = useState<Site[]>([])
 
@@ -106,12 +108,11 @@ function App() {
             className="h-[150px]"
           >
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
+              <BarChart data={websites.sort((a, b) => a.time > b.time ? -1 : 1).slice(0, 5)}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis />
+                <XAxis dataKey="website" tickFormatter={(value) => value.slice(0, 1)} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="hours" fill="#7C3AED" />
+                <Bar dataKey="time" fill="#7C3AED" />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
